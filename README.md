@@ -153,10 +153,18 @@ terraform apply
 
 This creates all AWS resources: VPC, subnets, gateways, security groups, and 4 EC2 instances (1 master + 3 workers).
 
-**3. Deploy Kubernetes with Ansible**
+**3. Generate Ansible inventory from Terraform outputs**
 ```bash
 cd ../ansible
 
+# Generate the dynamic inventory file
+./generate_inventory.sh
+```
+
+This script extracts the IP addresses and instance information from Terraform outputs and creates the Ansible inventory file.
+
+**4. Deploy Kubernetes with Ansible**
+```bash
 # Verify connectivity to all nodes
 ansible-playbook playbooks/ping.yml
 
@@ -172,7 +180,7 @@ This automatically:
 - Joins worker nodes to the cluster
 - Installs Flannel CNI for pod networking
 
-**4. Verify the cluster**
+**5. Verify the cluster**
 ```bash
 # Get the master node IP
 cd ../terraform
@@ -195,7 +203,7 @@ k8s-cluster-worker-2   Ready    <none>          4m    v1.28.15
 k8s-cluster-worker-3   Ready    <none>          4m    v1.28.15
 ```
 
-**5. Deploy a test application**
+**6. Deploy a test application**
 ```bash
 # Create a deployment
 kubectl create deployment nginx --image=nginx
@@ -210,7 +218,7 @@ kubectl get svc nginx
 curl http://<WORKER_IP>:<NODE_PORT>
 ```
 
-**6. Clean up resources**
+**7. Clean up resources**
 ```bash
 # Destroy all AWS resources to avoid charges
 cd terraform

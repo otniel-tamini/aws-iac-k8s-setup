@@ -1,6 +1,6 @@
 ---
 # Inventaire généré automatiquement depuis Terraform
-# Généré le: Tue Oct  7 14:36:09 GMT 2025
+# Généré le: Tue Oct  7 15:43:39 GMT 2025
 # Ne pas modifier manuellement - utiliser ./generate_inventory.sh
 
 all:
@@ -8,26 +8,26 @@ all:
     masters:
       hosts:
         k8s-cluster-master-1:
-          ansible_host: 3.10.233.70
-          private_ip: 10.0.1.71
-          instance_id: i-006b52823aad479c1
+          ansible_host: 18.171.157.109
+          private_ip: 10.0.1.245
+          instance_id: i-096d895407a1ac8dc
           availability_zone: eu-west-2a
     workers:
       hosts:
         k8s-cluster-worker-1:
-          ansible_host: 3.8.118.25
-          private_ip: 10.0.1.216
-          instance_id: i-0be074247cc7bf44b
+          ansible_host: 35.178.161.97
+          private_ip: 10.0.1.223
+          instance_id: i-0cd2fd6403fc969a3
           availability_zone: eu-west-2a
         k8s-cluster-worker-2:
-          ansible_host: 13.40.228.19
-          private_ip: 10.0.2.184
-          instance_id: i-0812d2be7be03d54f
+          ansible_host: 18.133.236.199
+          private_ip: 10.0.2.196
+          instance_id: i-0cf935538d85320e5
           availability_zone: eu-west-2b
         k8s-cluster-worker-3:
-          ansible_host: 18.175.228.71
-          private_ip: 10.0.3.109
-          instance_id: i-09e191d816cbbc16d
+          ansible_host: 18.175.245.90
+          private_ip: 10.0.3.240
+          instance_id: i-09b01ccf057f77dd4
           availability_zone: eu-west-2c
   vars:
     ansible_user: ubuntu
