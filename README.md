@@ -431,7 +431,7 @@ aws configure
 
 - 🐛 **Report Issues**: [GitHub Issues](https://github.com/otniel-tamini/aws-iac-k8s-setup/issues)
 - � **Discussions**: [GitHub Discussions](https://github.com/otniel-tamini/aws-iac-k8s-setup/discussions)
-- 📧 **Email**: [otniel.tamini@example.com](mailto:otniel.tamini@example.com)
+- 📧 **Email**: [otnieltamini@gmail.com](mailto:otnieltamini@gmail.com)
 
 <div align="center">
 
