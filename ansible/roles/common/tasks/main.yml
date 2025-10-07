@@ -77,18 +77,48 @@
   file:
     path: /etc/containerd
     state: directory
+    mode: '0755'
+
+- name: "🐳 Vérifier si la configuration containerd existe"
+  stat:
+    path: /etc/containerd/config.toml
+  register: containerd_config
 
 - name: "🐳 Génération de la configuration par défaut de containerd"
   shell: containerd config default > /etc/containerd/config.toml
-  args:
-    creates: /etc/containerd/config.toml
+  when: not containerd_config.stat.exists
 
 - name: "🐳 Configuration du driver cgroup systemd pour containerd"
   replace:
     path: /etc/containerd/config.toml
-    regexp: 'SystemdCgroup = false'
+    regexp: 'SystemdCgroup\s*=\s*false'
     replace: 'SystemdCgroup = true'
+  register: cgroup_config
   notify: restart containerd
+
+- name: "🐳 Vérifier si la configuration a été appliquée"
+  command: grep "SystemdCgroup = true" /etc/containerd/config.toml
+  register: cgroup_check
+  failed_when: false
+  changed_when: false
+
+- name: "🐳 Forcer la régénération si SystemdCgroup n'est pas configuré"
+  block:
+    - name: "🗑️ Supprimer l'ancienne configuration"
+      file:
+        path: /etc/containerd/config.toml
+        state: absent
+    
+    - name: "🐳 Régénérer la configuration containerd"
+      shell: containerd config default > /etc/containerd/config.toml
+    
+    - name: "🐳 Appliquer SystemdCgroup = true"
+      replace:
+        path: /etc/containerd/config.toml
+        regexp: 'SystemdCgroup\s*=\s*false'
+        replace: 'SystemdCgroup = true'
+      notify: restart containerd
+  when: cgroup_check.rc != 0
 
 - name: "🐳 S'assurer que containerd est redémarré immédiatement"
   meta: flush_handlers
