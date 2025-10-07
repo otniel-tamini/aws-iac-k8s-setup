@@ -1,0 +1,94 @@
+---
+# Playbook pour réinitialiser le cluster (supprime tout)
+# ⚠️  ATTENTION: Ce playbook supprime complètement le cluster !
+# Usage: ansible-playbook -i inventories/terraform_inventory.yml playbooks/reset.yml
+
+- name: "🚨 ATTENTION: Réinitialisation complète du cluster"
+  hosts: all
+  become: yes
+  
+  vars_prompt:
+    - name: confirm_reset
+      prompt: "⚠️  Êtes-vous sûr de vouloir réinitialiser le cluster ? (tapez 'yes' pour confirmer)"
+      private: no
+      
+  tasks:
+    - name: "🛑 Arrêt si confirmation non donnée"
+      fail:
+        msg: "❌ Réinitialisation annulée par l'utilisateur"
+      when: confirm_reset != "yes"
+
+- name: "🗄️ Réinitialisation des nœuds worker"
+  hosts: workers
+  become: yes
+  serial: 1
+  
+  tasks:
+    - name: "🔄 Reset du nœud worker"
+      command: kubeadm reset --force
+      ignore_errors: yes
+      
+    - name: "🧹 Nettoyage des répertoires Kubernetes"
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/kubernetes
+        - /var/lib/kubelet
+        - /var/lib/etcd
+        - /etc/cni/net.d
+        - /home/ubuntu/.kube
+
+- name: "🎛️ Réinitialisation du master"
+  hosts: masters
+  become: yes
+  
+  tasks:
+    - name: "🔄 Reset du master"
+      command: kubeadm reset --force
+      ignore_errors: yes
+      
+    - name: "🧹 Nettoyage des répertoires Kubernetes"
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /etc/kubernetes
+        - /var/lib/kubelet
+        - /var/lib/etcd
+        - /etc/cni/net.d
+        - /home/ubuntu/.kube
+        - /root/.kube
+
+- name: "🧹 Nettoyage complet de tous les nœuds"
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: "🔄 Restart de kubelet"
+      systemd:
+        name: kubelet
+        state: restarted
+      ignore_errors: yes
+      
+    - name: "🔄 Restart de containerd"
+      systemd:
+        name: containerd
+        state: restarted
+        
+    - name: "🧹 Suppression des images containers"
+      shell: crictl rmi --all
+      ignore_errors: yes
+      
+    - name: "🧹 Nettoyage des pods"
+      shell: crictl rmp --all
+      ignore_errors: yes
+      
+    - name: "✅ Cluster réinitialisé"
+      debug:
+        msg: |
+          🎉 Le cluster a été complètement réinitialisé !
+          
+          🔄 Prochaines étapes :
+          1. Relancez le déploiement avec site.yml
+          2. Ou modifiez la configuration avant redéploiement

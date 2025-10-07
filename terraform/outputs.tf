@@ -138,9 +138,10 @@ output "all_public_ips" {
 output "estimated_monthly_cost" {
   description = "Coût mensuel estimé (en USD, basé sur us-east-1)"
   value = {
-    ec2_instances = "${var.master_count + var.worker_count} x ${var.instance_type} = ~$${(var.master_count + var.worker_count) * 8.5}/mois"
-    ebs_storage   = "${(var.master_count + var.worker_count) * 20}GB = ~$${(var.master_count + var.worker_count) * 20 * 0.10}/mois"
-    nat_gateway   = "1 x NAT Gateway = ~$32/mois"
-    total_estimate = "~$${(var.master_count + var.worker_count) * 8.5 + (var.master_count + var.worker_count) * 2 + 32}/mois"
+    master_instances = "${var.master_count} x ${var.master_instance_type} = ~$${var.master_count * 15.3}/mois"
+    worker_instances = "${var.worker_count} x ${var.worker_instance_type} = ~$${var.worker_count * 7.6}/mois"
+    ebs_storage     = "Master: ${var.master_count * 50}GB, Workers: ${var.worker_count * 30}GB = ~$${(var.master_count * 50 + var.worker_count * 30) * 0.10}/mois"
+    nat_gateway     = "1 x NAT Gateway = ~$32/mois"
+    total_estimate  = "~$${var.master_count * 15.3 + var.worker_count * 7.6 + (var.master_count * 50 + var.worker_count * 30) * 0.10 + 32}/mois"
   }
 }

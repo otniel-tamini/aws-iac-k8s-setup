@@ -1,0 +1,7 @@
+---
+# Handlers pour le rôle kubernetes
+
+- name: restart kubelet
+  systemd:
+    name: kubelet
+    state: restarted

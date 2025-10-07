@@ -1,0 +1,13 @@
+---
+# Variables spécifiques aux nœuds worker
+
+# Configuration des ressources
+max_pods: 110
+
+# Configuration kubelet
+kubelet_extra_args:
+  - "--node-labels=node-role.kubernetes.io/worker="
+  - "--register-with-taints="
+
+# Configuration des volumes
+volume_plugin_dir: "/usr/libexec/kubernetes/kubelet-plugins/volume/exec/"

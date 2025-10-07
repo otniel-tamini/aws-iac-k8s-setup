@@ -37,10 +37,16 @@ variable "private_subnet_cidrs" {
 }
 
 # Configuration des instances EC2
-variable "instance_type" {
-  description = "Type d'instance EC2 (free tier)"
+variable "master_instance_type" {
+  description = "Type d'instance EC2 pour les nœuds master"
   type        = string
-  default     = "t2.micro"
+  default     = "t3.small"
+}
+
+variable "worker_instance_type" {
+  description = "Type d'instance EC2 pour les nœuds worker"
+  type        = string
+  default     = "t3.micro"
 }
 
 variable "master_count" {

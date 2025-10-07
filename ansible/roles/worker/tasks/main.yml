@@ -1,0 +1,49 @@
+---
+# Jointure des nœuds worker au cluster Kubernetes
+
+- name: "🔍 Vérifier si le nœud a déjà rejoint le cluster"
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: node_joined
+
+- name: "📥 Copier la commande de jointure depuis le master"
+  copy:
+    src: /tmp/kubernetes_join_command.sh
+    dest: /tmp/kubernetes_join_command.sh
+    mode: '0755'
+  when: not node_joined.stat.exists
+
+- name: "🔗 Joindre le nœud worker au cluster"
+  shell: /tmp/kubernetes_join_command.sh
+  register: join_result
+  when: not node_joined.stat.exists
+
+- name: "📝 Afficher le résultat de la jointure"
+  debug:
+    var: join_result.stdout_lines
+  when: join_result is defined and join_result.stdout_lines is defined
+
+- name: "⏳ Attendre que kubelet soit actif"
+  systemd:
+    name: kubelet
+    state: started
+  register: kubelet_status
+  until: kubelet_status.status.ActiveState == "active"
+  retries: 10
+  delay: 10
+
+- name: "🧹 Nettoyer le fichier de jointure"
+  file:
+    path: /tmp/kubernetes_join_command.sh
+    state: absent
+
+- name: "✅ Worker rejoint le cluster avec succès"
+  debug:
+    msg: |
+      🎉 Le nœud worker {{ inventory_hostname }} a rejoint le cluster !
+      
+      📋 Informations :
+      - Kubelet: {{ kubelet_status.status.ActiveState }}
+      - Configuration: /etc/kubernetes/kubelet.conf
+      
+      🔧 Le nœud est maintenant prêt à recevoir des pods.

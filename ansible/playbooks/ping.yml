@@ -1,0 +1,28 @@
+---
+# Playbook pour tester la connectivité vers tous les nœuds
+# Usage: ansible-playbook -i inventories/terraform_inventory.yml playbooks/ping.yml
+
+- name: "🏓 Test de connectivité vers tous les nœuds"
+  hosts: all
+  gather_facts: no
+  
+  tasks:
+    - name: "🔍 Test de ping"
+      ping:
+      
+    - name: "📋 Récupération des informations de base"
+      setup:
+        gather_subset: 
+          - min
+          - network
+      
+    - name: "📊 Affichage des informations"
+      debug:
+        msg: |
+          🎯 Hôte: {{ inventory_hostname }}
+          🌐 IP publique: {{ ansible_host }}
+          🔒 IP privée: {{ private_ip }}
+          💿 OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          🏗️ Architecture: {{ ansible_architecture }}
+          ⚡ Instance: {{ instance_id }}
+          📍 Zone AZ: {{ availability_zone }}

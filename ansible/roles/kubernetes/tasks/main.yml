@@ -1,0 +1,46 @@
+---
+# Installation des outils Kubernetes (kubeadm, kubelet, kubectl)
+
+- name: "🔑 Ajout de la clé GPG Kubernetes"
+  apt_key:
+    url: "https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/Release.key"
+    keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    state: present
+
+- name: "📦 Ajout du repository Kubernetes"
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ kubernetes_version }}/deb/ /"
+    state: present
+    filename: kubernetes
+
+- name: "📦 Mise à jour du cache APT"
+  apt:
+    update_cache: yes
+
+- name: "🚀 Installation de kubeadm, kubelet et kubectl"
+  apt:
+    name:
+      - "kubelet={{ kubernetes_package_version }}"
+      - "kubeadm={{ kubernetes_package_version }}"
+      - "kubectl={{ kubernetes_package_version }}"
+    state: present
+    allow_downgrade: yes
+
+- name: "🔒 Verrouillage des versions des paquets Kubernetes"
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: "🚀 Activation et démarrage de kubelet"
+  systemd:
+    name: kubelet
+    enabled: yes
+    state: started
+
+- name: "🔄 Rechargement des services systemd"
+  systemd:
+    daemon_reload: yes

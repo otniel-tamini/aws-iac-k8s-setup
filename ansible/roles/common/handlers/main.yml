@@ -1,0 +1,7 @@
+---
+# Handlers pour le rôle common
+
+- name: restart containerd
+  systemd:
+    name: containerd
+    state: restarted

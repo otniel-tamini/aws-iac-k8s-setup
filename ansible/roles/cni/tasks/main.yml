@@ -1,0 +1,97 @@
+---
+# Installation et configuration du CNI (Container Network Interface)
+
+- name: "🔍 Vérifier si le CNI est déjà installé"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl get pods -n kube-system | grep -E "(flannel|calico)" || true
+  register: cni_check
+  changed_when: false
+
+- name: "🌐 Installation de Flannel CNI"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+  register: flannel_install
+  when: 
+    - cni_provider == "flannel"
+    - "'flannel' not in cni_check.stdout"
+
+- name: "🌐 Installation de Calico CNI"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/tigera-operator.yaml
+    kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/custom-resources.yaml
+  register: calico_install
+  when: 
+    - cni_provider == "calico"
+    - "'calico' not in cni_check.stdout"
+
+- name: "📝 Afficher le résultat de l'installation Flannel"
+  debug:
+    var: flannel_install.stdout_lines
+  when: 
+    - flannel_install is defined 
+    - flannel_install.stdout_lines is defined
+
+- name: "📝 Afficher le résultat de l'installation Calico"
+  debug:
+    var: calico_install.stdout_lines
+  when: 
+    - calico_install is defined 
+    - calico_install.stdout_lines is defined
+
+- name: "⏳ Attendre que les pods Flannel soient prêts"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl wait --for=condition=ready pod -l app=flannel -n kube-flannel --timeout=300s
+  register: flannel_ready
+  when: cni_provider == "flannel"
+  changed_when: false
+
+- name: "⏳ Attendre que les pods Calico soient prêts"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl wait --for=condition=ready pod -l k8s-app=calico-node -n calico-system --timeout=300s
+  register: calico_ready
+  when: cni_provider == "calico"
+  ignore_errors: yes
+
+- name: "🔍 Vérifier le statut des nœuds après installation CNI"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl get nodes -o wide
+  register: nodes_status
+  changed_when: false
+
+- name: "📊 Afficher le statut des nœuds"
+  debug:
+    msg: |
+      🌐 CNI {{ cni_provider | upper }} installé !
+      
+      📊 Statut des nœuds :
+      {{ nodes_status.stdout }}
+
+- name: "🔍 Vérifier les pods système"
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/admin.conf
+    kubectl get pods -n kube-system -o wide
+  register: system_pods
+  changed_when: false
+
+- name: "📊 Afficher les pods système"
+  debug:
+    msg: |
+      📦 Pods système :
+      {{ system_pods.stdout }}
+
+- name: "✅ CNI configuré avec succès"
+  debug:
+    msg: |
+      🎉 Le réseau {{ cni_provider | upper }} a été configuré avec succès !
+      
+      📋 Informations :
+      - Provider CNI: {{ cni_provider | upper }}
+      - Les nœuds devraient maintenant être en état "Ready"
+      
+      🔧 Le cluster est maintenant prêt à déployer des applications !

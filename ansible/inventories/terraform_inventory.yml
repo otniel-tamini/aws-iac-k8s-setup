@@ -1,0 +1,36 @@
+---
+# Inventaire généré automatiquement depuis Terraform
+# Généré le: Tue Oct  7 14:36:09 GMT 2025
+# Ne pas modifier manuellement - utiliser ./generate_inventory.sh
+
+all:
+  children:
+    masters:
+      hosts:
+        k8s-cluster-master-1:
+          ansible_host: 3.10.233.70
+          private_ip: 10.0.1.71
+          instance_id: i-006b52823aad479c1
+          availability_zone: eu-west-2a
+    workers:
+      hosts:
+        k8s-cluster-worker-1:
+          ansible_host: 3.8.118.25
+          private_ip: 10.0.1.216
+          instance_id: i-0be074247cc7bf44b
+          availability_zone: eu-west-2a
+        k8s-cluster-worker-2:
+          ansible_host: 13.40.228.19
+          private_ip: 10.0.2.184
+          instance_id: i-0812d2be7be03d54f
+          availability_zone: eu-west-2b
+        k8s-cluster-worker-3:
+          ansible_host: 18.175.228.71
+          private_ip: 10.0.3.109
+          instance_id: i-09e191d816cbbc16d
+          availability_zone: eu-west-2c
+  vars:
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    ansible_python_interpreter: /usr/bin/python3

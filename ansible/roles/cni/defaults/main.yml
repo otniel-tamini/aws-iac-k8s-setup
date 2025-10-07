@@ -1,0 +1,4 @@
+---
+# Variables par défaut pour le rôle CNI
+
+cni_provider: "flannel"  # Options: flannel, calico

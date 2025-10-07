@@ -1,0 +1,18 @@
+---
+# Variables spécifiques aux nœuds master
+
+# Configuration du cluster
+cluster_name: "k8s-cluster"
+kubernetes_api_server_port: 6443
+
+# Certificats et tokens
+token_ttl: "24h"
+
+# Configuration API Server
+api_server_extra_args:
+  - "--audit-log-maxage=30"
+  - "--audit-log-maxbackup=3"
+  - "--audit-log-maxsize=100"
+
+# Configuration etcd
+etcd_data_dir: "/var/lib/etcd"
