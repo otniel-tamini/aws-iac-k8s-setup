@@ -1,0 +1,23 @@
+# Exemple de fichier de variables Terraform
+# Copiez ce fichier vers terraform.tfvars et modifiez les valeurs selon vos besoins
+
+# Configuration générale
+aws_region   = "us-west-2"
+environment  = "dev"
+cluster_name = "k8s-cluster"
+
+# Configuration réseau
+vpc_cidr             = "10.0.0.0/16"
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+private_subnet_cidrs = ["10.0.10.0/24"]
+
+# Configuration des instances
+instance_type = "t2.micro"  # ou "t3.micro" selon la région
+master_count  = 1
+worker_count  = 3
+
+# Clé SSH (assurez-vous que la clé publique existe dans ~/.ssh/id_rsa.pub)
+key_pair_name = "kubernetes-key"
+
+# Sécurité (modifiez pour restreindre l'accès en production)
+allowed_cidr_blocks = ["0.0.0.0/0"]
